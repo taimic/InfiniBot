@@ -9,18 +9,19 @@ import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
 public class MoveState extends State{	
+	double turn = 360;
+	double maxVelocity = 5;
+	double moveDistance = 100;
+	double lastTime = 0;
+	double doTurn = 1;
+	double moveDirection = 1;
+	
 	/**
 	 * Constructor. 
 	 */
 	public MoveState(AdvancedRobot robot) {
 		super(robot);
 	}
-
-	double turn = 360;
-	double maxVelocity = 5;
-	double moveDistance = 100;
-	double lastTime = 0;
-	double moveDirection = 1;
 	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
@@ -28,18 +29,28 @@ public class MoveState extends State{
 	@Override
 	public void run() {
 		// Turn to the right over x degrees
-		robot.setTurnRight(turn);
+		robot.setTurnRight(turn * doTurn);
 		// Limit speed to preserve energy
 		robot.setMaxVelocity(maxVelocity);
 		// Move forward
 		robot.ahead(moveDistance * moveDirection);
+		
+		if(robot.getDistanceRemaining() <= 0) doTurn = 1;
 	}
 	
 	public void turnAround(){
-		robot.setTurnLeft(turn * .5f);
+		robot.setTurnLeft(turn * doTurn * .5f);
 	}
-
-	private boolean notHandlingCloseWalls = true;
+	
+	/**
+	 * @param bearing The bearing of the enemy robot
+	 * @param halfRadius The halfRadius to look in
+	 * 
+	 * @return Whether or not the robot with the given bearing is in range of the given radius ([-halfRadius..halfRadius]). 
+	 */
+	public boolean isInRange(double bearing, double halfRadius){
+		return (bearing > -halfRadius && bearing < halfRadius);
+	}
 
 	/**
 	 * An enemy robot was found by the scanner.
@@ -48,11 +59,14 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
-		robot.fire(3);
-		if(System.currentTimeMillis() - lastTime > 300 && notHandlingCloseWalls){
+		// Fire at robot with the fire power depending on the distance to the robot
+		robot.fire(Math.min(((robot.getBattleFieldWidth() + robot.getBattleFieldHeight()) * .5f) / e.getDistance(), 3));
+		
+		if(System.currentTimeMillis() - lastTime > 300){
+			// Reset last time
 			lastTime = System.currentTimeMillis();
 			// Switch turn direction
-			turn *= -1;
+			if(e.getDistance() < ((robot.getBattleFieldWidth() + robot.getBattleFieldHeight()) * .25f)) turn *= -1;
 			// Reset run directions
 			robot.setTurnRight(turn);
 		}
@@ -73,7 +87,12 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void onHitRobot(HitRobotEvent e) {
-		turnAround();
+		System.out.println("HIT ROBOT");
+		// Check whether or not the robot is in front of us (180 / 2 = 90 degrees)
+		doTurn = 0;
+		robot.setTurnRight(turn * doTurn);
+		if(isInRange(e.getBearing(), 90)) robot.back(moveDistance);
+		else robot.ahead(moveDistance);
 	}
 	
 	/**
@@ -83,7 +102,12 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void onHitWall(HitWallEvent e){
-		System.out.println(e.getBearing());
+		System.out.println("HIT WALL");
+		// Check whether or not the wall is in front of us (180 / 2 = 90 degrees)
+		doTurn = 0;
+		robot.setTurnRight(turn * doTurn);
+		if(isInRange(e.getBearing(), 90)) robot.back(moveDistance);
+		else robot.ahead(moveDistance);
 	}
 	
 	/**
@@ -93,14 +117,9 @@ public class MoveState extends State{
 	 */
 	public void onCustomEvent(CustomEvent e) {
 		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
-			if (notHandlingCloseWalls) {
-				notHandlingCloseWalls = false;
-				moveDirection *= -1;
-				System.out.println("MOVING BACK");
-			}
+			
 		}else if (e.getCondition().getName().equals(EVENTS.CUSTOM_NOT_NEAR_WALLS.toString())){
-			moveDirection *= 1;
-			notHandlingCloseWalls = true;
+			
 		}
 	}
 }
