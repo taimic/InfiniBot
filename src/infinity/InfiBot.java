@@ -12,7 +12,7 @@ import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.ScannedRobotEvent;
 
-public class TestRobot extends AdvancedRobot {
+public class InfiBot extends AdvancedRobot {
 	/**
 	 * Holds all the custom events. 
 	 */
@@ -25,6 +25,11 @@ public class TestRobot extends AdvancedRobot {
 	 * The state machine. 
 	 */
 	private StateMachine stateMachine;
+	
+	/**
+	 * The distance to the walls for firing an event, if we are too close.
+	 */
+	private double marginToWalls = 100;
 
 	/**
 	 * run:  Fire's main run function
@@ -42,9 +47,7 @@ public class TestRobot extends AdvancedRobot {
 		stateMachine.changeState(MoveState.class);
 
 		// Execute the states method
-		while (true) {
-			stateMachine.getCurrentState().run();
-		}
+		while (true) stateMachine.getCurrentState().run();
 	}
 	
 	/**
@@ -65,14 +68,14 @@ public class TestRobot extends AdvancedRobot {
 		// Near walls
 		addCustomEvent(new Condition(EVENTS.CUSTOM_NEAR_WALLS.toString()) {
 			public boolean test() {
-				return isNearWalls(100);
+				return isNearWalls(marginToWalls);
 			}
 		});
 		
 		// Not near walls
 		addCustomEvent(new Condition(EVENTS.CUSTOM_NOT_NEAR_WALLS.toString()) {
 			public boolean test() {
-				return !isNearWalls(100);
+				return !isNearWalls(marginToWalls);
 			}
 		});
 	}
@@ -93,6 +96,11 @@ public class TestRobot extends AdvancedRobot {
 		);
 	}
 	
+	/**
+	 * This is called for every custom event that was registered.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
 	public void onCustomEvent(CustomEvent e) {
 		if(stateMachine != null) stateMachine.getCurrentState().onCustomEvent(e);
 	}

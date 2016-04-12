@@ -1,6 +1,6 @@
 package infinity.states;
 
-import infinity.TestRobot.EVENTS;
+import infinity.InfiBot.EVENTS;
 import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
