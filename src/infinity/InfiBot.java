@@ -17,7 +17,7 @@ public class InfiBot extends AdvancedRobot {
 	 * Holds all the custom events. 
 	 */
 	public enum EVENTS {
-	    CUSTOM_NEAR_WALLS,
+		CUSTOM_NEAR_WALLS,
 	    CUSTOM_NOT_NEAR_WALLS
 	}
 	
