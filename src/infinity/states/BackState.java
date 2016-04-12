@@ -1,26 +1,21 @@
 package infinity.states;
 
 import infinity.InfiBot;
-import infinity.StateMachine;
+import robocode.AdvancedRobot;
+import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
+import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
-public abstract class State implements IState{
+public class BackState extends State{
 	/**
-	 * The robot that is in use. 
+	 * Constructor.
+	 * 
+	 * @param robot The robot that is used.
 	 */
-	protected InfiBot robot;
-	/**
-	 * The state machine that is used. 
-	 */
-	protected StateMachine stateMachine;
-	
-	/**
-	 * Constructor. 
-	 */
-	public State(InfiBot robot) {
-		this.robot = robot;
+	public BackState(InfiBot robot) {
+		super(robot);
 	}
 	
 	/**
@@ -52,20 +47,20 @@ public abstract class State implements IState{
 	 */
 	@Override
 	public void onHitRobot(HitRobotEvent e) {}
-	
+
 	/**
-	 * @return The registered state machine. 
-	 */
-	public StateMachine getStateMachine(){
-		return stateMachine;
-	}
-	
-	/**
-	 * Registers the state machine.
+	 * We hit the wall with our robot.
 	 * 
-	 * @param stateMachine The state machine to register
+	 * @param e The event holding the corresponding data
 	 */
-	public void registerStateMachine(StateMachine stateMachine){
-		this.stateMachine = stateMachine;
-	}
+	@Override
+	public void onHitWall(HitWallEvent e) {}
+
+	/**
+	 * This is called for every custom event that was registered.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
+	@Override
+	public void onCustomEvent(CustomEvent e) {}
 }

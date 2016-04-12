@@ -1,15 +1,22 @@
 package infinity;
 
 import infinity.states.IState;
-import infinity.states.State;
 
 import java.util.ArrayList;
 
 public class StateMachine {
-	// Holds all states
+	/**
+	 * All registered states. 
+	 */
 	ArrayList<IState> states;
-	// The current active state
+	/**
+	 * The current active state. 
+	 */
 	IState currentState;
+	/**
+	 * The last active state. 
+	 */
+	IState lastState;
 	
 	/**
 	 * Constructor. 
@@ -43,11 +50,14 @@ public class StateMachine {
 	/**
 	 * Changes the current active state to the state with the given class, if available.
 	 * 
-	 *  @param to The class of the registered state to change to
+	 * @param to The class of the registered state to change to
 	 */
-	public void changeState(Class<? extends State> to){
+	public void changeState(Class<? extends IState> to){
 		for(IState state : this.states){
-			if(state.getClass().equals(to)) currentState = state;
+			if(state.getClass().equals(to)){
+				lastState = currentState;
+				currentState = state;
+			}
 		}
 	}
 	
@@ -56,5 +66,20 @@ public class StateMachine {
 	 */
 	public IState getCurrentState(){
 		return currentState;
+	}
+	
+	/**
+	 * @return The last active state. 
+	 */
+	public IState getLastState(){
+		return lastState;
+	}
+	
+	/**
+	 * Enters the last state. Calling this more than once will cause the state machine
+	 * to jump between the last two states.
+	 */
+	public void enterLastState(){
+		if(lastState != null) changeState(lastState.getClass());
 	}
 }

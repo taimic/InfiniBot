@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.StateMachine;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -7,6 +8,18 @@ import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
 public interface IState {
+	/**
+	 * Registers the state machine for further access through the states.
+	 * 
+	 *  @param stateMachine The state machine to register
+	 */
+	void registerStateMachine(StateMachine stateMachine);
+	
+	/**
+	 * @return The registered state machine. 
+	 */
+	StateMachine getStateMachine();
+	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */

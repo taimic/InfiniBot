@@ -18,7 +18,9 @@ public class MoveState extends State{
 	double moveDirection = 1;
 	
 	/**
-	 * Constructor. 
+	 * Constructor.
+	 * 
+	 * @param robot The robot that is used.
 	 */
 	public MoveState(InfiBot robot) {
 		super(robot);
