@@ -1,62 +1,65 @@
 package infinity.states;
 
-import infinity.StateMachine;
+import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
-public interface IState {
+public class BackState extends State{
 	/**
-	 * Registers the state machine for further access through the states.
+	 * Constructor.
 	 * 
-	 *  @param stateMachine The state machine to register
+	 * @param robot The robot that is used.
 	 */
-	void registerStateMachine(StateMachine stateMachine);
-	
-	/**
-	 * @return The registered state machine. 
-	 */
-	StateMachine getStateMachine();
+	public BackState(AdvancedRobot robot) {
+		super(robot);
+	}
 	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
-	void run();
-	
+	@Override
+	public void run() {}
+
 	/**
 	 * An enemy robot was found by the scanner.
 	 * 
 	 * @param e The event holding the corresponding data
 	 */
-	void onScannedRobot(ScannedRobotEvent e);
-	
+	@Override
+	public void onScannedRobot(ScannedRobotEvent e) {}
+
 	/**
 	 * We were hit by a bullet.
 	 * 
 	 * @param e The event holding the corresponding data
 	 */
-	void onHitByBullet(HitByBulletEvent e);
-	
+	@Override
+	public void onHitByBullet(HitByBulletEvent e) {}
+
 	/**
 	 * We hit a robot directly with our robot (collision).
 	 * 
 	 * @param e The event holding the corresponding data
 	 */
-	void onHitRobot(HitRobotEvent e);
-	
+	@Override
+	public void onHitRobot(HitRobotEvent e) {}
+
 	/**
 	 * We hit the wall with our robot.
 	 * 
 	 * @param e The event holding the corresponding data
 	 */
-	void onHitWall(HitWallEvent e);
-	
+	@Override
+	public void onHitWall(HitWallEvent e) {}
+
 	/**
 	 * This is called for every custom event that was registered.
 	 * 
 	 * @param e The event holding the corresponding data
 	 */
-	void onCustomEvent(CustomEvent e);
+	@Override
+	public void onCustomEvent(CustomEvent e) {}
 }

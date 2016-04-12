@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.StateMachine;
 import robocode.AdvancedRobot;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -10,6 +11,10 @@ public abstract class State implements IState{
 	 * The robot that is in use. 
 	 */
 	protected AdvancedRobot robot;
+	/**
+	 * The state machine that is used. 
+	 */
+	protected StateMachine stateMachine;
 	
 	/**
 	 * Constructor. 
@@ -47,4 +52,20 @@ public abstract class State implements IState{
 	 */
 	@Override
 	public void onHitRobot(HitRobotEvent e) {}
+	
+	/**
+	 * @return The registered state machine. 
+	 */
+	public StateMachine getStateMachine(){
+		return stateMachine;
+	}
+	
+	/**
+	 * Registers the state machine.
+	 * 
+	 * @param stateMachine The state machine to register
+	 */
+	public void registerStateMachine(StateMachine stateMachine){
+		this.stateMachine = stateMachine;
+	}
 }
