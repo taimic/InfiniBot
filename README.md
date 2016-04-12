@@ -1,0 +1,2 @@
+# InfiniBot
+robocode bot
