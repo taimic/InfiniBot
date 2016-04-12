@@ -46,8 +46,13 @@ public class ShootState extends State{
 	public void onHitRobot(HitRobotEvent e) {}
 	
 	@Override
-	public void OnHitWall(HitWallEvent e){}
+	public void onHitWall(HitWallEvent e){}
 	
+	/**
+	 * This is called for every custom event that was registered.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
 	@Override
 	public void onCustomEvent(CustomEvent e){}
 }

@@ -14,6 +14,14 @@ import robocode.ScannedRobotEvent;
 
 public class TestRobot extends AdvancedRobot {
 	/**
+	 * Holds all the custom events. 
+	 */
+	public enum EVENTS {
+	    CUSTOM_NEAR_WALLS,
+	    CUSTOM_NOT_NEAR_WALLS
+	}
+	
+	/**
 	 * The state machine. 
 	 */
 	private StateMachine stateMachine;
@@ -50,21 +58,39 @@ public class TestRobot extends AdvancedRobot {
 		setBulletColor(Color.red);
 	}
 	
+	/**
+	 * Initializes custom events.
+	 */
 	private void initCustomEvents(){
-		addCustomEvent(new Condition("too_close_to_walls") {
+		// Near walls
+		addCustomEvent(new Condition(EVENTS.CUSTOM_NEAR_WALLS.toString()) {
 			public boolean test() {
-				return (
-					// we're too close to the left wall
-					getX() <= 100 ||
-					// or we're too close to the right wall
-					getX() >= getBattleFieldWidth() - 100 ||
-					// or we're too close to the bottom wall
-					getY() <= 100 ||
-					// or we're too close to the top wall
-					getY() >= getBattleFieldHeight() - 100
-				);
+				return isNearWalls(100);
 			}
 		});
+		
+		// Not near walls
+		addCustomEvent(new Condition(EVENTS.CUSTOM_NOT_NEAR_WALLS.toString()) {
+			public boolean test() {
+				return !isNearWalls(100);
+			}
+		});
+	}
+	
+	/**
+	 * @return Whether or not the robot is near walls.
+	 */
+	public boolean isNearWalls(double marginToWalls){
+		return (
+			// we're too close to the left wall
+			getX() <= marginToWalls ||
+			// or we're too close to the right wall
+			getX() >= getBattleFieldWidth() - marginToWalls ||
+			// or we're too close to the bottom wall
+			getY() <= marginToWalls ||
+			// or we're too close to the top wall
+			getY() >= getBattleFieldHeight() - marginToWalls
+		);
 	}
 	
 	public void onCustomEvent(CustomEvent e) {

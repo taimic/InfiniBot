@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.TestRobot.EVENTS;
 import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
@@ -19,6 +20,8 @@ public class MoveState extends State{
 	double maxVelocity = 5;
 	double moveDistance = 100;
 	double lastTime = 0;
+	double moveDirection = 1;
+	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
@@ -29,26 +32,14 @@ public class MoveState extends State{
 		// Limit speed to preserve energy
 		robot.setMaxVelocity(maxVelocity);
 		// Move forward
-		robot.ahead(moveDistance);
+		robot.ahead(moveDistance * moveDirection);
 	}
 	
 	public void turnAround(){
 		robot.setTurnLeft(turn * .5f);
 	}
 
-	private int tooCloseToWall = 0;
-	public void onCustomEvent(CustomEvent e) {
-		if (e.getCondition().getName().equals("too_close_to_walls"))
-		{
-			if (tooCloseToWall <= 0) {
-				// if we weren't already dealing with the walls, we are now
-				tooCloseToWall += 100;
-			//	robot.setMaxVelocity(0); // stop!!!
-				robot.setTurnRight(180);
-				robot.ahead(100);
-			}
-		}
-	}
+	private boolean notHandlingCloseWalls = true;
 
 	/**
 	 * An enemy robot was found by the scanner.
@@ -58,7 +49,7 @@ public class MoveState extends State{
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
 		robot.fire(3);
-		if(System.currentTimeMillis() - lastTime > 300){
+		if(System.currentTimeMillis() - lastTime > 300 && notHandlingCloseWalls){
 			lastTime = System.currentTimeMillis();
 			// Switch turn direction
 			turn *= -1;
@@ -85,8 +76,31 @@ public class MoveState extends State{
 		turnAround();
 	}
 	
+	/**
+	 * We hit the wall with our robot.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
 	@Override
-	public void OnHitWall(HitWallEvent e){
+	public void onHitWall(HitWallEvent e){
 		System.out.println(e.getBearing());
+	}
+	
+	/**
+	 * This is called for every custom event that was registered.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
+	public void onCustomEvent(CustomEvent e) {
+		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
+			if (notHandlingCloseWalls) {
+				notHandlingCloseWalls = false;
+				moveDirection *= -1;
+				System.out.println("MOVING BACK");
+			}
+		}else if (e.getCondition().getName().equals(EVENTS.CUSTOM_NOT_NEAR_WALLS.toString())){
+			moveDirection *= 1;
+			notHandlingCloseWalls = true;
+		}
 	}
 }

@@ -33,7 +33,17 @@ public interface IState {
 	 */
 	void onHitRobot(HitRobotEvent e);
 	
-	void OnHitWall(HitWallEvent e);
+	/**
+	 * We hit the wall with our robot.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
+	void onHitWall(HitWallEvent e);
 	
+	/**
+	 * This is called for every custom event that was registered.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
 	void onCustomEvent(CustomEvent e);
 }
