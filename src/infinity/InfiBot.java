@@ -10,6 +10,7 @@ import robocode.Condition;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
+import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
 public class InfiBot extends AdvancedRobot {
@@ -29,7 +30,7 @@ public class InfiBot extends AdvancedRobot {
 	/**
 	 * The distance to the walls for firing an event, if we are too close.
 	 */
-	private double marginToWalls = 100;
+	private double marginToWalls = 150;
 
 	/**
 	 * run:  Fire's main run function
@@ -130,5 +131,14 @@ public class InfiBot extends AdvancedRobot {
 	 */
 	public void onHitRobot(HitRobotEvent e) {
 		if(stateMachine != null) stateMachine.getCurrentState().onHitRobot(e);
+	}
+	
+	/**
+	 * We hit the wall with our robot.
+	 * 
+	 * @param e The event holding the corresponding data
+	 */
+	public void onHitWall(HitWallEvent e){
+		if(stateMachine != null) stateMachine.getCurrentState().onHitWall(e);
 	}
 }
