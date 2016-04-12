@@ -56,4 +56,16 @@ public class ShootState extends State{
 	 */
 	@Override
 	public void onCustomEvent(CustomEvent e){}
+
+	@Override
+	public void enter() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
 }

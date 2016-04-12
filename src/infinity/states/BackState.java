@@ -1,14 +1,14 @@
 package infinity.states;
 
 import infinity.InfiBot;
-import robocode.AdvancedRobot;
+import infinity.InfiBot.EVENTS;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
-public class BackState extends State{
+public class BackState extends MoveState{
 	/**
 	 * Constructor.
 	 * 
@@ -18,11 +18,43 @@ public class BackState extends State{
 		super(robot);
 	}
 	
+	@Override
+	public void enter() {
+//	  	// divorce radar movement from gun movement
+//		robot.setAdjustRadarForGunTurn(true);
+//		// divorce gun movement from tank movement
+//		robot.setAdjustGunForRobotTurn(true);
+//		// we have no enemy yet
+//		robot.enemy.reset();
+//		// initial scan
+//		robot.setTurnRadarRight(360);
+	}
+	
+	@Override
+	public void exit() {
+//		robot.setTurnRadarRight(360 - robot.getRadarHeading());
+//		robot.setAdjustRadarForGunTurn(false);
+//		robot.setAdjustGunForRobotTurn(false);
+//		robot.enemy.reset();
+	}
+	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
 	@Override
-	public void run() {}
+	public void run() {
+		// rotate the radar
+		//robot.setTurnRadarRight(360);
+		// doGun does predictive targeting
+		//robot.doGun();
+		// carry out all the queued up actions
+		//robot.execute();
+		
+		// Default movement
+		super.run();
+		
+		if(robot.getDistanceRemaining() <= 0) getStateMachine().enterLastState();
+	}
 
 	/**
 	 * An enemy robot was found by the scanner.
@@ -46,7 +78,9 @@ public class BackState extends State{
 	 * @param e The event holding the corresponding data
 	 */
 	@Override
-	public void onHitRobot(HitRobotEvent e) {}
+	public void onHitRobot(HitRobotEvent e) {
+		goBack(e.getBearing());
+	}
 
 	/**
 	 * We hit the wall with our robot.
@@ -54,7 +88,18 @@ public class BackState extends State{
 	 * @param e The event holding the corresponding data
 	 */
 	@Override
-	public void onHitWall(HitWallEvent e) {}
+	public void onHitWall(HitWallEvent e) {
+		goBack(e.getBearing());
+	}
+	
+	public void goBack(double bearing){
+		doTurn = 0;
+		robot.setTurnRight(turn * doTurn);
+		robot.setTurnRight(45);
+		// Check whether or not the wall is in front of us (180 / 2 = 90 degrees)
+		if(robot.isInRange(bearing, 90)) robot.back(moveDistance);
+		else robot.ahead(moveDistance);
+	}
 
 	/**
 	 * This is called for every custom event that was registered.

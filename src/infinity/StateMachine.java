@@ -32,7 +32,10 @@ public class StateMachine {
 	 */
 	public void register(IState... states){
 		for(IState state : states){
-			if(!this.states.contains(state)) this.states.add(state);
+			if(!this.states.contains(state)){
+				this.states.add(state);
+				state.registerStateMachine(this);
+			}
 		}
 	}
 	
@@ -55,8 +58,11 @@ public class StateMachine {
 	public void changeState(Class<? extends IState> to){
 		for(IState state : this.states){
 			if(state.getClass().equals(to)){
+				if(currentState != null) currentState.exit();
 				lastState = currentState;
 				currentState = state;
+				currentState.enter();
+				System.out.println("CHANGE STATE TO : " + state.getClass().getSimpleName());
 			}
 		}
 	}

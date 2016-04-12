@@ -1,7 +1,6 @@
 package infinity.states;
 
 import infinity.InfiBot;
-import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -15,12 +14,12 @@ public class CircState extends State{
 	 */
 	public CircState(InfiBot robot) {
 		super(robot);
-		enter(); // TODO: call on enter state !
+		//enter(); // TODO: call on enter state !
 	}
 	
-
+	@Override
 	public void enter() {
-	  		// divorce radar movement from gun movement
+	  	// divorce radar movement from gun movement
 		robot.setAdjustRadarForGunTurn(true);
 		// divorce gun movement from tank movement
 		robot.setAdjustGunForRobotTurn(true);
@@ -28,6 +27,13 @@ public class CircState extends State{
 		robot.enemy.reset();
 		// initial scan
 		robot.setTurnRadarRight(360);
+	}
+	
+	@Override
+	public void exit() {
+		robot.setAdjustRadarForGunTurn(false);
+		robot.setAdjustGunForRobotTurn(false);
+		robot.enemy.reset();
 	}
 	
 	/**

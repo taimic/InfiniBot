@@ -21,6 +21,16 @@ public interface IState {
 	StateMachine getStateMachine();
 	
 	/**
+	 * Enters the state. 
+	 */
+	void enter();
+	
+	/**
+	 * Exits the state. 
+	 */
+	void exit();
+	
+	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
 	void run();

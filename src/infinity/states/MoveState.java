@@ -2,7 +2,6 @@ package infinity.states;
 
 import infinity.InfiBot;
 import infinity.InfiBot.EVENTS;
-import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -26,6 +25,17 @@ public class MoveState extends State{
 		super(robot);
 	}
 	
+	@Override
+	public void enter(){
+		
+	}
+	
+	@Override
+	public void exit() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
@@ -43,16 +53,6 @@ public class MoveState extends State{
 	
 	public void turnAround(){
 		robot.setTurnLeft(turn * doTurn * .5f);
-	}
-	
-	/**
-	 * @param bearing The bearing of the enemy robot
-	 * @param halfRadius The halfRadius to look in
-	 * 
-	 * @return Whether or not the robot with the given bearing is in range of the given radius ([-halfRadius..halfRadius]). 
-	 */
-	public boolean isInRange(double bearing, double halfRadius){
-		return (bearing > -halfRadius && bearing < halfRadius);
 	}
 
 	/**
@@ -90,12 +90,7 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void onHitRobot(HitRobotEvent e) {
-		System.out.println("HIT ROBOT");
-		// Check whether or not the robot is in front of us (180 / 2 = 90 degrees)
-		doTurn = 0;
-		robot.setTurnRight(turn * doTurn);
-		if(isInRange(e.getBearing(), 90)) robot.back(moveDistance);
-		else robot.ahead(moveDistance);
+		getStateMachine().changeState(BackState.class);
 	}
 	
 	/**
@@ -105,12 +100,7 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void onHitWall(HitWallEvent e){
-		System.out.println("HIT WALL");
-		// Check whether or not the wall is in front of us (180 / 2 = 90 degrees)
-		doTurn = 0;
-		robot.setTurnRight(turn * doTurn);
-		if(isInRange(e.getBearing(), 90)) robot.back(moveDistance);
-		else robot.ahead(moveDistance);
+		getStateMachine().changeState(BackState.class);
 	}
 	
 	/**
@@ -120,9 +110,8 @@ public class MoveState extends State{
 	 */
 	public void onCustomEvent(CustomEvent e) {
 		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
-			
-		}else if (e.getCondition().getName().equals(EVENTS.CUSTOM_NOT_NEAR_WALLS.toString())){
-			
+			System.out.println("TOO CLOSE TO WALL");
+			getStateMachine().changeState(BackState.class);
 		}
 	}
 }

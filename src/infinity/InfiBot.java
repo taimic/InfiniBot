@@ -1,12 +1,11 @@
 package infinity;
 
-import infinity.states.CircState;
-import infinity.states.MoveState;
-import infinity.states.ShootState;
-
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
+import infinity.states.BackState;
+import infinity.states.CircState;
+import infinity.states.MoveState;
 import robocode.AdvancedRobot;
 import robocode.Condition;
 import robocode.CustomEvent;
@@ -36,7 +35,7 @@ public class InfiBot extends AdvancedRobot {
 	/**
 	 * The distance to the walls for firing an event, if we are too close.
 	 */
-	private double marginToWalls = 150;
+	private double marginToWalls = 50;
 
 	/**
 	 * run:  Fire's main run function
@@ -48,10 +47,10 @@ public class InfiBot extends AdvancedRobot {
 		
 		// Initialize state machine and register all states
 		stateMachine = new StateMachine();
-		stateMachine.register(new MoveState(this), new ShootState(this), new CircState(this));
+		stateMachine.register(new MoveState(this), new BackState(this), new CircState(this));
 		
 		// Set default state
-		stateMachine.changeState(CircState.class);
+		stateMachine.changeState(MoveState.class);
 
 		// Execute the states method
 		while (true) {
@@ -69,6 +68,16 @@ public class InfiBot extends AdvancedRobot {
 		setRadarColor(Color.gray);
 		setScanColor(Color.black);
 		setBulletColor(Color.red);
+	}
+	
+	/**
+	 * @param bearing The bearing of the enemy robot
+	 * @param halfRadius The halfRadius to look in
+	 * 
+	 * @return Whether or not the robot with the given bearing is in range of the given radius ([-halfRadius..halfRadius]). 
+	 */
+	public boolean isInRange(double bearing, double halfRadius){
+		return (bearing > -halfRadius && bearing < halfRadius);
 	}
 	
 	/**
