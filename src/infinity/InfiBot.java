@@ -1,9 +1,11 @@
 package infinity;
 
+import infinity.states.CircState;
 import infinity.states.MoveState;
 import infinity.states.ShootState;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 
 import robocode.AdvancedRobot;
 import robocode.Condition;
@@ -11,9 +13,13 @@ import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
+import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
 public class InfiBot extends AdvancedRobot {
+	
+	public AdvancedEnemyBot enemy = new AdvancedEnemyBot();
+	
 	/**
 	 * Holds all the custom events. 
 	 */
@@ -42,13 +48,16 @@ public class InfiBot extends AdvancedRobot {
 		
 		// Initialize state machine and register all states
 		stateMachine = new StateMachine();
-		stateMachine.register(new MoveState(this), new ShootState(this));
+		stateMachine.register(new MoveState(this), new ShootState(this), new CircState(this));
 		
 		// Set default state
-		stateMachine.changeState(MoveState.class);
+		stateMachine.changeState(CircState.class);
 
 		// Execute the states method
-		while (true) stateMachine.getCurrentState().run();
+		while (true) {
+			stateMachine.getCurrentState().run();
+		}
+
 	}
 	
 	/**
@@ -114,6 +123,13 @@ public class InfiBot extends AdvancedRobot {
 	public void onScannedRobot(ScannedRobotEvent e) {
 		if(stateMachine != null) stateMachine.getCurrentState().onScannedRobot(e);
 	}
+	
+	public void onRobotDeath(RobotDeathEvent e) {
+		// see if the robot we were tracking died
+		if (e.getName().equals(enemy.getName())) {
+			enemy.reset();
+		}
+	}   
 
 	/**
 	 * We were hit by a bullet.
@@ -140,5 +156,63 @@ public class InfiBot extends AdvancedRobot {
 	 */
 	public void onHitWall(HitWallEvent e){
 		if(stateMachine != null) stateMachine.getCurrentState().onHitWall(e);
+	}
+	
+	
+	public void doGun() {
+		// don't shoot if I've got no enemy
+		if (enemy.none())
+			return;
+
+		// calculate firepower based on distance
+		double firePower = Math.min(500 / enemy.getDistance(), 3);
+		// calculate speed of bullet
+		double bulletSpeed = 20 - firePower * 3;
+		// distance = rate * time, solved for time
+		long time = (long)(enemy.getDistance() / bulletSpeed);
+//		time -= 3.0f; // compensation test
+		System.out.println("Time" + time);
+		// calculate gun turn to predicted x,y location
+		double futureX = enemy.getFutureX(time);
+		double futureY = enemy.getFutureY(time);
+		double absDeg = absoluteBearing(getX(), getY(), futureX, futureY);
+		// non-predictive firing can be done like this:
+		//double absDeg = absoluteBearing(getX(), getY(), enemy.getX(), enemy.getY());
+
+		// turn the gun to the predicted x,y location
+		setTurnGunRight(normalizeBearing(absDeg - getGunHeading()));
+
+		// if the gun is cool and we're pointed in the right direction, shoot!
+		if (getGunHeat() == 0 && Math.abs(getGunTurnRemaining()) < 10) {
+			setFire(firePower);
+		}
+	}
+
+	// computes the absolute bearing between two points
+	double absoluteBearing(double x1, double y1, double x2, double y2) {
+		double xo = x2-x1;
+		double yo = y2-y1;
+		double hyp = Point2D.distance(x1, y1, x2, y2);
+		double arcSin = Math.toDegrees(Math.asin(xo / hyp));
+		double bearing = 0;
+
+		if (xo > 0 && yo > 0) { // both pos: lower-Left
+			bearing = arcSin;
+		} else if (xo < 0 && yo > 0) { // x neg, y pos: lower-right
+			bearing = 360 + arcSin; // arcsin is negative here, actually 360 - ang
+		} else if (xo > 0 && yo < 0) { // x pos, y neg: upper-left
+			bearing = 180 - arcSin;
+		} else if (xo < 0 && yo < 0) { // both neg: upper-right
+			bearing = 180 - arcSin; // arcsin is negative here, actually 180 + ang
+		}
+
+		return bearing;
+	}
+
+	// normalizes a bearing to between +180 and -180
+	double normalizeBearing(double angle) {
+		while (angle >  180) angle -= 360;
+		while (angle < -180) angle += 360;
+		return angle;
 	}
 }

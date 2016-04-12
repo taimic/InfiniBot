@@ -1,4 +1,4 @@
-package InfiniTwo;
+package infinity;
 import robocode.*;
 import java.text.NumberFormat;
 

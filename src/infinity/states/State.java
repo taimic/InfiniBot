@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.InfiBot;
 import robocode.AdvancedRobot;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -9,12 +10,12 @@ public abstract class State implements IState{
 	/**
 	 * The robot that is in use. 
 	 */
-	protected AdvancedRobot robot;
+	protected InfiBot robot;
 	
 	/**
 	 * Constructor. 
 	 */
-	public State(AdvancedRobot robot) {
+	public State(InfiBot robot) {
 		this.robot = robot;
 	}
 	

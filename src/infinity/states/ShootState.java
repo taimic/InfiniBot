@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.InfiBot;
 import robocode.AdvancedRobot;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
@@ -11,7 +12,7 @@ public class ShootState extends State{
 	/**
 	 * Constructor. 
 	 */
-	public ShootState(AdvancedRobot robot) {
+	public ShootState(InfiBot robot) {
 		super(robot);
 	}
 	

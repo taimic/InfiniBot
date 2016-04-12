@@ -5,6 +5,8 @@ package InfiniTwo;
 import robocode.*;
 import java.awt.geom.Point2D;
 
+import infinity.AdvancedEnemyBot;
+
 public class InfiniTwo extends AdvancedRobot {
 
 	private AdvancedEnemyBot enemy = new AdvancedEnemyBot();
@@ -23,8 +25,8 @@ public class InfiniTwo extends AdvancedRobot {
 			// rotate the radar
 			setTurnRadarRight(360);
 			// sit & spin
-					setTurnRight(5);
-					setAhead(20);
+			setTurnRight(5);
+			setAhead(20);
 			// doGun does predictive targeting
 			doGun();
 			// carry out all the queued up actions

@@ -1,5 +1,6 @@
 package infinity.states;
 
+import infinity.InfiBot;
 import infinity.InfiBot.EVENTS;
 import robocode.AdvancedRobot;
 import robocode.CustomEvent;
@@ -19,7 +20,7 @@ public class MoveState extends State{
 	/**
 	 * Constructor. 
 	 */
-	public MoveState(AdvancedRobot robot) {
+	public MoveState(InfiBot robot) {
 		super(robot);
 	}
 	
