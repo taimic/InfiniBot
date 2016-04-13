@@ -32,7 +32,6 @@ public class CircState extends State {
 	@Override
 	public void exit() {
 
-//		robot.enemy.reset();
 	}
 
 	/**
@@ -91,6 +90,7 @@ public class CircState extends State {
 	 */
 	@Override
 	public void onHitRobot(HitRobotEvent e) {
+		getStateMachine().changeState(BackState.class);
 	}
 
 	@Override

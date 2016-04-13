@@ -6,6 +6,7 @@ import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
+import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
 public class BackState extends MoveState{
@@ -20,22 +21,19 @@ public class BackState extends MoveState{
 	
 	@Override
 	public void enter() {
-//	  	// divorce radar movement from gun movement
-//		robot.setAdjustRadarForGunTurn(true);
-//		// divorce gun movement from tank movement
-//		robot.setAdjustGunForRobotTurn(true);
-//		// we have no enemy yet
-//		robot.enemy.reset();
-//		// initial scan
-//		robot.setTurnRadarRight(360);
+		// divorce radar movement from gun movement
+		robot.setAdjustRadarForGunTurn(true);
+		// divorce gun movement from tank movement
+		robot.setAdjustGunForRobotTurn(true);
+		// we have no enemy yet
+		robot.enemy.reset();
+		// initial scan
+		robot.setTurnRadarRight(360);
 	}
 	
 	@Override
 	public void exit() {
-//		robot.setTurnRadarRight(360 - robot.getRadarHeading());
-//		robot.setAdjustRadarForGunTurn(false);
-//		robot.setAdjustGunForRobotTurn(false);
-//		robot.enemy.reset();
+
 	}
 	
 	/**
@@ -43,15 +41,20 @@ public class BackState extends MoveState{
 	 */
 	@Override
 	public void run() {
+		System.out.println("back radar " + robot.getRadarTurnRemaining());
+		robot.setTurnRadarRight(360);
 		// Limit speed to preserve energy
 		robot.setMaxVelocity(maxVelocity);
 		// Move forward
 		robot.ahead(moveDistance * moveDirection);
 		
+		robot.doGun();
+		
+		robot.execute();
 		
 		if(robot.getDistanceRemaining() <= 0) getStateMachine().enterLastState();
 		
-		robot.execute();
+
 	}
 
 	/**
@@ -60,7 +63,21 @@ public class BackState extends MoveState{
 	 * @param e The event holding the corresponding data
 	 */
 	@Override
-	public void onScannedRobot(ScannedRobotEvent e) {}
+	public void onScannedRobot(ScannedRobotEvent e) {
+		// track if we have no enemy, the one we found is significantly
+		// closer, or we scanned the one we've been tracking.
+		if (robot.enemy.none() || e.getDistance() < robot.enemy.getDistance() - 70
+				|| e.getName().equals(robot.enemy.getName())) {
+
+			// track him using the NEW update method
+			robot.enemy.update(e, this.robot);
+		}
+	}
+	
+	
+	public void onRobotDeath(RobotDeathEvent e) {
+		robot.onRobotDeath(e);
+	}
 
 	/**
 	 * We were hit by a bullet.
