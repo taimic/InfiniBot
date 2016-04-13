@@ -24,6 +24,22 @@ public abstract class State implements IState{
 	}
 	
 	/**
+	 * Enters the state. 
+	 */
+	@Override
+	public void enter(){
+		System.out.println("Entered state: " + this.getClass().getSimpleName());
+	}
+	
+	/**
+	 * Exits the state. 
+	 */
+	@Override
+	public void exit(){
+		System.out.println("Exited state: " + this.getClass().getSimpleName());
+	}
+	
+	/**
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
 	@Override

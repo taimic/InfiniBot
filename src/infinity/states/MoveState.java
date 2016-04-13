@@ -28,13 +28,11 @@ public class MoveState extends State{
 	
 	@Override
 	public void enter(){
+		super.enter();
+		
+		// Align gun with radar
 		robot.turnGunLeft(robot.getGunHeading());
 		robot.turnRadarLeft(robot.getRadarHeading());
-	}
-	
-	@Override
-	public void exit() {
-		// TODO Auto-generated method stub	
 	}
 	
 	/**
@@ -42,32 +40,26 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void run() {
-
-		if (robot.getGunHeading() != 0) {
-			//robot.turnGunLeft(-robot.getGunHeading());
-		}else{
-			robot.setAdjustGunForRobotTurn(false);
-		}
-		if (robot.getRadarHeading() != 0) {
-			
-			//robot.turnRadarLeft(-robot.getRadarHeading());
-		}else{
+		// Lock radar and gun
+		if (robot.getRadarHeading() == 0)
 			robot.setAdjustRadarForGunTurn(false);
 			
-		}
-		
+		if(robot.getGunHeading() == 0) 
+			robot.setAdjustGunForRobotTurn(false);
 		
 		// Limit speed to preserve energy
 		robot.setMaxVelocity(maxVelocity);
 		// Move forward
 		robot.ahead(moveDistance * moveDirection);
+		// Reset flag
 		resetChangedTurn();
 	}
 	
+	/**
+	 * Resets the flag that is used to prevent multiple event calls. 
+	 */
 	private void resetChangedTurn() {
-		if(System.currentTimeMillis() - lastDirectionChange >100){
-			changedDirection = false;
-		}
+		changedDirection = !(System.currentTimeMillis() - lastDirectionChange > 100);
 	}
 	
 
@@ -118,7 +110,6 @@ public class MoveState extends State{
 	 */
 	public void onCustomEvent(CustomEvent e) {
 		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
-			System.out.println("TOO CLOSE TO WALL");
 			getStateMachine().changeState(BackState.class);
 		}
 

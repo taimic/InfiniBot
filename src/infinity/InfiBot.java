@@ -1,34 +1,30 @@
 package infinity;
 
-import java.awt.Color;
-import java.awt.geom.Point2D;
-
 import infinity.states.BackState;
 import infinity.states.CircState;
 import infinity.states.MoveState;
+
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
 import robocode.AdvancedRobot;
 import robocode.Condition;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
-import robocode.Robocode;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
-public class InfiBot extends AdvancedRobot {
-	
-	double lastStateChange = 0;
-	
-	public AdvancedEnemyBot enemy = new AdvancedEnemyBot();
-	
+public class InfiBot extends AdvancedRobot {	
 	/**
 	 * Holds all the custom events. 
 	 */
 	public enum EVENTS {
 		CUSTOM_NEAR_WALLS,
 	    CUSTOM_NOT_NEAR_WALLS,
-	    CUSTOM_TURN_FINISHED
+	    CUSTOM_TURN_FINISHED,
+	    CUSTOM_CHANGE_STATE
 	}
 	
 	/**
@@ -42,6 +38,12 @@ public class InfiBot extends AdvancedRobot {
 	private double marginToWalls = 50;
 	private double turnOverDegrees = 360;
 	private double turnDirection = 1;
+	private double lastStateChange = 0;
+	private double changeStateTime = 200;	// in ms
+	/**
+	 * The enemy robot, which is used for tracking enemies. 
+	 */
+	private AdvancedEnemyBot enemy = new AdvancedEnemyBot();
 
 	/**
 	 * run:  Fire's main run function
@@ -113,14 +115,33 @@ public class InfiBot extends AdvancedRobot {
 			}
 		});
 		
-		// Not near walls
+		// Turn of the robot finished
 		addCustomEvent(new Condition(EVENTS.CUSTOM_TURN_FINISHED.toString()) {
 			public boolean test() {
 				return isTurnFinished(turnDirection == -1);
 			}
 		});
+		
+		// Turn of the robot finished
+		addCustomEvent(new Condition(EVENTS.CUSTOM_CHANGE_STATE.toString()) {
+			public boolean test() {
+				return getTime() - lastStateChange > changeStateTime;
+			}
+		});
 	}
 	
+	/**
+	 * @return The enemy robot. 
+	 */
+	public AdvancedEnemyBot getEnemy(){
+		return enemy;
+	}
+	
+	/**
+	 * @param left Whether or not we turn left
+	 * 
+	 *  @return Whether or not the turn has finished, depending on the direction we are turning.
+	 */
 	public boolean isTurnFinished(boolean left) {
 		double remaining = getTurnRemaining();
 		return ((remaining <= 0 && !left) || (remaining >= 0 && left));
@@ -160,7 +181,15 @@ public class InfiBot extends AdvancedRobot {
 	 * @param e The event holding the corresponding data
 	 */
 	public void onCustomEvent(CustomEvent e) {
-		if(stateMachine != null) stateMachine.getCurrentState().onCustomEvent(e);
+		if(stateMachine != null){
+//			if(e.getCondition().getName().equals(EVENTS.CUSTOM_CHANGE_STATE.toString())){
+//				lastStateChange = getTime();
+//				
+//				if (stateMachine.getCurrentState() instanceof MoveState) stateMachine.changeState(CircState.class);
+//				else if (stateMachine.getCurrentState() instanceof CircState) stateMachine.changeState(MoveState.class);
+//			}else 
+				stateMachine.getCurrentState().onCustomEvent(e);
+		}
 	}
 
 	/**
@@ -172,11 +201,13 @@ public class InfiBot extends AdvancedRobot {
 		if(stateMachine != null) stateMachine.getCurrentState().onScannedRobot(e);
 	}
 	
+	/**
+	 * A robot died.
+	 * 
+	 * @param e The event holding the corresponding data  
+	 */
 	public void onRobotDeath(RobotDeathEvent e) {
-		// see if the robot we were tracking died
-		if (e.getName().equals(enemy.getName())) {
-			enemy.reset();
-		}
+		if (e.getName().equals(enemy.getName())) enemy.reset();
 	}   
 
 	/**
@@ -238,7 +269,15 @@ public class InfiBot extends AdvancedRobot {
 		}
 	}
 
-	// computes the absolute bearing between two points
+	/**
+	 * Computes the absolute bearing between two points.
+	 * 
+	 * @param x1 The x-coordinate of the first point
+	 * @param y1 The y-coordinate of the first point
+	 * @param x2 The x-coordinate of the second point
+	 * @param y2 The y-coordinate of the second point
+	 * @return The absolute bearing.
+	 */
 	double absoluteBearing(double x1, double y1, double x2, double y2) {
 		double xo = x2-x1;
 		double yo = y2-y1;
@@ -259,7 +298,12 @@ public class InfiBot extends AdvancedRobot {
 		return bearing;
 	}
 
-	// normalizes a bearing to between +180 and -180
+	/**
+	 * Normalizes a bearing to between +180 and -180. Works with angles of any size.
+	 * 
+	 * @param The angle to normalize
+	 * @return The normalized angle.
+	 */
 	double normalizeBearing(double angle) {
 		while (angle >  180) angle -= 360;
 		while (angle < -180) angle += 360;

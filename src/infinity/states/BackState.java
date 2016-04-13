@@ -1,12 +1,10 @@
 package infinity.states;
 
 import infinity.InfiBot;
-import infinity.InfiBot.EVENTS;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
-import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
 public class BackState extends State{
@@ -26,19 +24,15 @@ public class BackState extends State{
 	
 	@Override
 	public void enter() {
+		super.enter();
 		// divorce radar movement from gun movement
 		robot.setAdjustRadarForGunTurn(true);
 		// divorce gun movement from tank movement
 		robot.setAdjustGunForRobotTurn(true);
 		// we have no enemy yet
-		robot.enemy.reset();
+		robot.getEnemy().reset();
 		// initial scan
 		robot.setTurnRadarRight(360);
-	}
-	
-	@Override
-	public void exit() {
-
 	}
 	
 	/**
@@ -58,8 +52,6 @@ public class BackState extends State{
 		robot.execute();
 		
 		if(robot.getDistanceRemaining() <= 0) getStateMachine().enterLastState();
-		
-
 	}
 
 	/**
@@ -71,17 +63,12 @@ public class BackState extends State{
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// track if we have no enemy, the one we found is significantly
 		// closer, or we scanned the one we've been tracking.
-		if (robot.enemy.none() || e.getDistance() < robot.enemy.getDistance() - 70
-				|| e.getName().equals(robot.enemy.getName())) {
+		if (robot.getEnemy().none() || e.getDistance() < robot.getEnemy().getDistance() - 70
+				|| e.getName().equals(robot.getEnemy().getName())) {
 
 			// track him using the NEW update method
-			robot.enemy.update(e, this.robot);
+			robot.getEnemy().update(e, this.robot);
 		}
-	}
-	
-	
-	public void onRobotDeath(RobotDeathEvent e) {
-		robot.onRobotDeath(e);
 	}
 
 	/**
