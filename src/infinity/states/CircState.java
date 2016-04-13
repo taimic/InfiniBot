@@ -1,6 +1,7 @@
 package infinity.states;
 
 import infinity.InfiBot;
+import infinity.InfiBot.EVENTS;
 import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
@@ -8,18 +9,17 @@ import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
-public class CircState extends State{
+public class CircState extends State {
 	/**
-	 * Constructor. 
+	 * Constructor.
 	 */
 	public CircState(InfiBot robot) {
 		super(robot);
-		//enter(); // TODO: call on enter state !
 	}
 	
 	@Override
 	public void enter() {
-	  	// divorce radar movement from gun movement
+		// divorce radar movement from gun movement
 		robot.setAdjustRadarForGunTurn(true);
 		// divorce gun movement from tank movement
 		robot.setAdjustGunForRobotTurn(true);
@@ -28,16 +28,15 @@ public class CircState extends State{
 		// initial scan
 		robot.setTurnRadarRight(360);
 	}
-	
+
 	@Override
 	public void exit() {
-		robot.setAdjustRadarForGunTurn(false);
-		robot.setAdjustGunForRobotTurn(false);
-		robot.enemy.reset();
+
+//		robot.enemy.reset();
 	}
-	
+
 	/**
-	 * The default actions to execute when no event occurred happen in here. 
+	 * The default actions to execute when no event occurred happen in here.
 	 */
 	@Override
 	public void run() {
@@ -55,48 +54,61 @@ public class CircState extends State{
 	/**
 	 * An enemy robot was found by the scanner.
 	 * 
-	 * @param e The event holding the corresponding data
+	 * @param e
+	 *            The event holding the corresponding data
 	 */
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// track if we have no enemy, the one we found is significantly
 		// closer, or we scanned the one we've been tracking.
-		if ( robot.enemy.none() || e.getDistance() < robot.enemy.getDistance() - 70 ||
-				e.getName().equals(robot.enemy.getName())) {
+		if (robot.enemy.none() || e.getDistance() < robot.enemy.getDistance() - 70
+				|| e.getName().equals(robot.enemy.getName())) {
 
 			// track him using the NEW update method
 			robot.enemy.update(e, this.robot);
 		}
 	}
-	
+
 	public void onRobotDeath(RobotDeathEvent e) {
 		robot.onRobotDeath(e);
-	}  
+	}
 
 	/**
 	 * We were hit by a bullet.
 	 * 
-	 * @param e The event holding the corresponding data
+	 * @param e
+	 *            The event holding the corresponding data
 	 */
 	@Override
-	public void onHitByBullet(HitByBulletEvent e) {}
+	public void onHitByBullet(HitByBulletEvent e) {
+	}
 
 	/**
 	 * We hit a robot directly with our robot (collision).
 	 * 
-	 * @param e The event holding the corresponding data
+	 * @param e
+	 *            The event holding the corresponding data
 	 */
 	@Override
-	public void onHitRobot(HitRobotEvent e) {}
-	
+	public void onHitRobot(HitRobotEvent e) {
+	}
+
 	@Override
-	public void onHitWall(HitWallEvent e){}
-	
+	public void onHitWall(HitWallEvent e) {
+		getStateMachine().changeState(BackState.class);
+	}
+
 	/**
 	 * This is called for every custom event that was registered.
 	 * 
-	 * @param e The event holding the corresponding data
+	 * @param e
+	 *            The event holding the corresponding data
 	 */
 	@Override
-	public void onCustomEvent(CustomEvent e){}
+	public void onCustomEvent(CustomEvent e) {
+		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
+			System.out.println("TOO CLOSE TO WALL");
+			getStateMachine().changeState(BackState.class);
+		}
+	}
 }

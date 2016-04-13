@@ -20,7 +20,11 @@ public class ShootState extends State{
 	 * The default actions to execute when no event occurred happen in here. 
 	 */
 	@Override
-	public void run() {}
+	public void run() {
+		robot.doGun();
+		// carry out all the queued up actions
+		robot.execute();
+	}
 
 	/**
 	 * An enemy robot was found by the scanner.

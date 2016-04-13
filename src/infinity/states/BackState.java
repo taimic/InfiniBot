@@ -50,10 +50,15 @@ public class BackState extends MoveState{
 		// carry out all the queued up actions
 		//robot.execute();
 		
+		
+		
 		// Default movement
-		super.run();
+		 super.run();
+		
 		
 		if(robot.getDistanceRemaining() <= 0) getStateMachine().enterLastState();
+		
+		robot.execute();
 	}
 
 	/**
@@ -93,8 +98,6 @@ public class BackState extends MoveState{
 	}
 	
 	public void goBack(double bearing){
-		doTurn = 0;
-		robot.setTurnRight(turn * doTurn);
 		robot.setTurnRight(45);
 		// Check whether or not the wall is in front of us (180 / 2 = 90 degrees)
 		if(robot.isInRange(bearing, 90)) robot.back(moveDistance);

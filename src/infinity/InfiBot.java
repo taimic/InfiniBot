@@ -12,10 +12,13 @@ import robocode.CustomEvent;
 import robocode.HitByBulletEvent;
 import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
+import robocode.Robocode;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
 public class InfiBot extends AdvancedRobot {
+	
+	double lastStateChange = 0;
 	
 	public AdvancedEnemyBot enemy = new AdvancedEnemyBot();
 	
@@ -24,7 +27,8 @@ public class InfiBot extends AdvancedRobot {
 	 */
 	public enum EVENTS {
 		CUSTOM_NEAR_WALLS,
-	    CUSTOM_NOT_NEAR_WALLS
+	    CUSTOM_NOT_NEAR_WALLS,
+	    CUSTOM_TURN_FINISHED
 	}
 	
 	/**
@@ -36,6 +40,8 @@ public class InfiBot extends AdvancedRobot {
 	 * The distance to the walls for firing an event, if we are too close.
 	 */
 	private double marginToWalls = 50;
+	private double turnOverDegrees = 360;
+	private double turnDirection = 1;
 
 	/**
 	 * run:  Fire's main run function
@@ -50,13 +56,22 @@ public class InfiBot extends AdvancedRobot {
 		stateMachine.register(new MoveState(this), new BackState(this), new CircState(this));
 		
 		// Set default state
-		stateMachine.changeState(MoveState.class);
+		stateMachine.changeState(CircState.class);
 
 		// Execute the states method
 		while (true) {
+			if(getTime() - lastStateChange > 200){
+				lastStateChange = getTime();
+				
+				if (stateMachine.getCurrentState() instanceof MoveState)
+					stateMachine.changeState(CircState.class);
+				else
+					stateMachine.changeState(MoveState.class);
+			}
+			
 			stateMachine.getCurrentState().run();
 		}
-
+		
 	}
 	
 	/**
@@ -97,6 +112,18 @@ public class InfiBot extends AdvancedRobot {
 				return !isNearWalls(marginToWalls);
 			}
 		});
+		
+		// Not near walls
+		addCustomEvent(new Condition(EVENTS.CUSTOM_TURN_FINISHED.toString()) {
+			public boolean test() {
+				return isTurnFinished(turnDirection == -1);
+			}
+		});
+	}
+	
+	public boolean isTurnFinished(boolean left) {
+		double remaining = getTurnRemaining();
+		return ((remaining <= 0 && !left) || (remaining >= 0 && left));
 	}
 	
 	/**
@@ -113,6 +140,18 @@ public class InfiBot extends AdvancedRobot {
 			// or we're too close to the top wall
 			getY() >= getBattleFieldHeight() - marginToWalls
 		);
+	}
+	
+	public double getTurnDirection(){
+		return turnDirection;
+	}
+	
+	public double getTurnOverDegrees(){
+		return turnOverDegrees;
+	}
+	
+	public void inverseTurnDirection(){
+		turnDirection *= -1;
 	}
 	
 	/**
@@ -179,8 +218,10 @@ public class InfiBot extends AdvancedRobot {
 		double bulletSpeed = 20 - firePower * 3;
 		// distance = rate * time, solved for time
 		long time = (long)(enemy.getDistance() / bulletSpeed);
-//		time -= 3.0f; // compensation test
-		System.out.println("Time" + time);
+		
+////		time -= 3.0f; // compensation test
+//		System.out.println("Time" + time);
+		
 		// calculate gun turn to predicted x,y location
 		double futureX = enemy.getFutureX(time);
 		double futureY = enemy.getFutureY(time);

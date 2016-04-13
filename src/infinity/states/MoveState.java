@@ -8,13 +8,14 @@ import robocode.HitRobotEvent;
 import robocode.HitWallEvent;
 import robocode.ScannedRobotEvent;
 
-public class MoveState extends State{	
-	double turn = 360;
+public class MoveState extends State{
 	double maxVelocity = 5;
 	double moveDistance = 100;
-	double lastTime = 0;
-	double doTurn = 1;
 	double moveDirection = 1;
+	
+	boolean changedDirection = false;
+
+	private double lastDirectionChange = 0;
 	
 	/**
 	 * Constructor.
@@ -32,8 +33,7 @@ public class MoveState extends State{
 	
 	@Override
 	public void exit() {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
 	}
 	
 	/**
@@ -41,19 +41,29 @@ public class MoveState extends State{
 	 */
 	@Override
 	public void run() {
-		// Turn to the right over x degrees
-		robot.setTurnRight(turn * doTurn);
+
+		if (robot.getRadarHeading() != robot.getGunHeading()) {
+			
+			robot.turnGunLeft(-robot.getGunHeading());
+		}else{
+			robot.setAdjustRadarForGunTurn(false);
+			robot.setAdjustGunForRobotTurn(false);
+		}
+		
+		
 		// Limit speed to preserve energy
 		robot.setMaxVelocity(maxVelocity);
 		// Move forward
 		robot.ahead(moveDistance * moveDirection);
-		
-		if(robot.getDistanceRemaining() <= 0) doTurn = 1;
+		resetChangedTurn();
 	}
 	
-	public void turnAround(){
-		robot.setTurnLeft(turn * doTurn * .5f);
+	private void resetChangedTurn() {
+		if(System.currentTimeMillis() - lastDirectionChange >100){
+			changedDirection = false;
+		}
 	}
+	
 
 	/**
 	 * An enemy robot was found by the scanner.
@@ -65,14 +75,6 @@ public class MoveState extends State{
 		// Fire at robot with the fire power depending on the distance to the robot
 		robot.fire(Math.min(((robot.getBattleFieldWidth() + robot.getBattleFieldHeight()) * .5f) / e.getDistance(), 3));
 		
-		if(System.currentTimeMillis() - lastTime > 300){
-			// Reset last time
-			lastTime = System.currentTimeMillis();
-			// Switch turn direction
-			if(e.getDistance() < ((robot.getBattleFieldWidth() + robot.getBattleFieldHeight()) * .25f)) turn *= -1;
-			// Reset run directions
-			robot.setTurnRight(turn);
-		}
 	}
 
 	/**
@@ -112,6 +114,15 @@ public class MoveState extends State{
 		if (e.getCondition().getName().equals(EVENTS.CUSTOM_NEAR_WALLS.toString())){
 			System.out.println("TOO CLOSE TO WALL");
 			getStateMachine().changeState(BackState.class);
+		}
+
+		if (e.getCondition().getName().equals(EVENTS.CUSTOM_TURN_FINISHED.toString())){
+			if (!changedDirection){ 
+				lastDirectionChange = System.currentTimeMillis();
+				changedDirection = true;
+				robot.inverseTurnDirection();
+				robot.setTurnRight(robot.getTurnOverDegrees() * robot.getTurnDirection());
+			}
 		}
 	}
 }
