@@ -9,7 +9,12 @@ import robocode.HitWallEvent;
 import robocode.RobotDeathEvent;
 import robocode.ScannedRobotEvent;
 
-public class BackState extends MoveState{
+public class BackState extends State{
+	
+	double maxVelocity = 5;
+	double moveDistance = 100;
+	double moveDirection = 1;
+	
 	/**
 	 * Constructor.
 	 * 
