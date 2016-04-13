@@ -28,7 +28,8 @@ public class MoveState extends State{
 	
 	@Override
 	public void enter(){
-		
+		robot.turnGunLeft(robot.getGunHeading());
+		robot.turnRadarLeft(robot.getRadarHeading());
 	}
 	
 	@Override
@@ -42,12 +43,17 @@ public class MoveState extends State{
 	@Override
 	public void run() {
 
-		if (robot.getRadarHeading() != robot.getGunHeading()) {
+		if (robot.getGunHeading() != 0) {
+			//robot.turnGunLeft(-robot.getGunHeading());
+		}else{
+			robot.setAdjustGunForRobotTurn(false);
+		}
+		if (robot.getRadarHeading() != 0) {
 			
-			robot.turnGunLeft(-robot.getGunHeading());
+			//robot.turnRadarLeft(-robot.getRadarHeading());
 		}else{
 			robot.setAdjustRadarForGunTurn(false);
-			robot.setAdjustGunForRobotTurn(false);
+			
 		}
 		
 		

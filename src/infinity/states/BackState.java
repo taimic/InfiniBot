@@ -43,17 +43,10 @@ public class BackState extends MoveState{
 	 */
 	@Override
 	public void run() {
-		// rotate the radar
-		//robot.setTurnRadarRight(360);
-		// doGun does predictive targeting
-		//robot.doGun();
-		// carry out all the queued up actions
-		//robot.execute();
-		
-		
-		
-		// Default movement
-		 super.run();
+		// Limit speed to preserve energy
+		robot.setMaxVelocity(maxVelocity);
+		// Move forward
+		robot.ahead(moveDistance * moveDirection);
 		
 		
 		if(robot.getDistanceRemaining() <= 0) getStateMachine().enterLastState();
